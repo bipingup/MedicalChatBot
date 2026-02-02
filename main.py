@@ -1,9 +1,11 @@
 import streamlit as st
+from dotenv import load_dotenv
+load_dotenv()
 from app.config import EURI_API_KEY
 from app.chat_utils import get_chat_model, ask_chat_model
 from app.pdf_utils import extract_text_from_pdf
 from app.ui import pdf_uploader
-from app.vectorstore_utils import create_faiss_index, retrive_similar_documents
+from app.vectorstore_utils import create_pinecone_index, retrieve_similar_documents
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import os
 import time
@@ -118,8 +120,8 @@ with st.sidebar:
                 for text in all_texts:
                     chunks.extend(text_splitter.split_text(text))
                 
-                # Create FAISS index
-                vectorstore = create_faiss_index(chunks)
+                # Create Pinecone vectorstore
+                vectorstore = create_pinecone_index(chunks)
                 st.session_state.vectorstore = vectorstore
                 
                 # Initialize chat model
@@ -158,7 +160,7 @@ if prompt := st.chat_input("Ask about your medical documents..."):
         with st.chat_message("assistant"):
             with st.spinner("🔍 Searching documents..."):
                 # Retrieve relevant documents
-                relevant_docs = retrive_similar_documents(st.session_state.vectorstore, prompt)
+                relevant_docs = retrieve_similar_documents(st.session_state.vectorstore, prompt)
                 
                 # Create context from relevant documents
                 context = "\n\n".join([doc.page_content for doc in relevant_docs])

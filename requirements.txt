@@ -6,3 +6,6 @@ langchain
 euriai 
 langchain_community
 sentence-transformers
+pinecone-client
+langchain-pinecone
+python-dotenv
